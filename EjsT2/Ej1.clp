@@ -11,7 +11,7 @@
 
 (defrule quitar
         ?f <- (lista $?x ?y $?z)
-        (test ( <> (+1 (length$ $?x)) ?y))
+        (test ( <> (+ (length$ $?x) 1) ?y))
         (test (<> ?y 0))
         =>
         (retract ?f)
