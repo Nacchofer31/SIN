@@ -1,14 +1,13 @@
 (deffacts sokoban
-    (robot 3 3 action level 0 boxes b 3 2 b 3 4 stores s 3 5 0)
+    (robot 3 3 action level 0 boxes b 3 2 b 3 4 stores s 3 5 0 s 4 2 0)
     (obs 2 3)
-    (obs 4 2)
     (obs 5 2)
     (obs 4 4)
     (obs 5 4)
     (map 5 5)
 
     ;;  | | | | | |
-    ;;  | | |B|O|O|
+    ;;  | | |B|S|O|
     ;;  | |O|R| | |
     ;;  | | |B|O|O|
     ;;  | | |S| | |
@@ -145,33 +144,66 @@
     (assert (robot (+ ?x 1) ?y push_right level (+ ?l 1) boxes $?boxes stores $?stores))
 )
 
-;;(defrule place_down
-;;    (robot ?x ?y ?action level ?l boxes $?boxes stores $?stores)
-;;    (map ?mx ?my)
-;;    (max_steps ?steps)
-;;
-;;    (test (eq ?bx ?x))
-;;    (test (eq ?sx ?x))
-;;    (test (eq ?by (+ ?y 1)))
-;;    (test (eq ?sy (+ ?y 2)))
-;;    (test (< ?l ?steps))
-;;    =>
-;;    (bind $?boxes1 (delete$ (create$ b ?bx ?by) 1 3))
-;;    (bind $?boxes2 (delete$ (create$ b ?bx ?by) 1 3))
-;;    (assert (robot ?x (+ ?y 1) place_down level (+ ?l 1) boxes $?boxes1 b ?bx ?by $?boxes2 stores $?stores1 s ?sx ?sy 1 $?stores2))
-;;)
-;;(defrule place_up
-;;    (robot ?x ?y ?action level ?l boxes $?boxes1 b ?bx ?by $?boxes2 stores $?stores1 s ?sx ?sy ?sa $?stores2)
-;;    (map ?mx ?my)
-;;    (max_steps ?;;steps)
+(defrule place_up
+    (robot ?x ?y ?action level ?l boxes $?boxes stores $?stores)
+    (map ?mx ?my)
+    (max_steps ?steps)
 
-;;    (test (eq ?bx ?x))
-;;    (test (eq ?sx ?x))
-;;    (test (eq ?by (- ?y 1)))
-;;    (test (eq ?sy (- ?y 2)))
-;;    (test (< ?l ?steps))
-;;    =>
-;;    (bind $?boxes1 (delete$ (create$ b ?bx ?by) 1 3))
-;;    (bind $?boxes2 (delete$ (create$ b ?bx ?by) 1 3))
-;;    (assert (robot ?x (- ?y 1) place_up level (+ ?l 1) boxes $?boxes1 b ?bx ?by $?boxes2 stores $?stores1 s ?sx ?sy 1 $?stores2))
-;;)
+    (test (member$ (create$ b ?x (- ?y 1) ) $?boxes))
+    (test (member$ (create$ s ?x (- ?y 2) 0) $?stores))
+    (test (< ?l ?steps))
+    =>
+    (bind $?boxes (delete-member$ $?boxes (create$ b ?x (- ?y 1) )))
+    (bind $?stores (replace-member$ $?stores (create$ s ?x (- ?y 2) 1) (create$ s ?x (- ?y 2) 0)))
+    (assert (robot ?x (- ?y 1) place_up level (+ ?l 1) boxes $?boxes stores $?stores))
+)
+
+(defrule place_down
+    (robot ?x ?y ?action level ?l boxes $?boxes stores $?stores)
+    (map ?mx ?my)
+    (max_steps ?steps)
+
+    (test (member$ (create$ b ?x (+ ?y 1) ) $?boxes))
+    (test (member$ (create$ s ?x (+ ?y 2) 0) $?stores))
+    (test (< ?l ?steps))
+    =>
+    (bind $?boxes (delete-member$ $?boxes (create$ b ?x (+ ?y 1) )))
+    (bind $?stores (replace-member$ $?stores (create$ s ?x (+ ?y 2) 1) (create$ s ?x (+ ?y 2) 0)))
+    (assert (robot ?x (+ ?y 1) place_down level (+ ?l 1) boxes $?boxes stores $?stores))
+)
+
+(defrule place_left
+    (robot ?x ?y ?action level ?l boxes $?boxes stores $?stores)
+    (map ?mx ?my)
+    (max_steps ?steps)
+
+    (test (member$ (create$ b (- ?x 1) ?y ) $?boxes))
+    (test (member$ (create$ s (- ?x 2) ?y 0) $?stores))
+    (test (< ?l ?steps))
+    =>
+    (bind $?boxes (delete-member$ $?boxes (create$ b (- ?x 1) ?y) ))
+    (bind $?stores (replace-member$ $?stores (create$ s (- ?x 2) ?y 1) (create$ s (- ?x 2) ?y 0)))
+    (assert (robot (- ?x 1) ?y place_left level (+ ?l 1) boxes $?boxes stores $?stores))
+)
+
+(defrule place_right
+    (robot ?x ?y ?action level ?l boxes $?boxes stores $?stores)
+    (map ?mx ?my)
+    (max_steps ?steps)
+
+    (test (member$ (create$ b (+ ?x 1) ?y ) $?boxes))
+    (test (member$ (create$ s (+ ?x 2) ?y 0) $?stores))
+    (test (< ?l ?steps))
+    =>
+    (bind $?boxes (delete-member$ $?boxes (create$ b (+ ?x 1) ?y) ))
+    (bind $?stores (replace-member$ $?stores (create$ s (+ ?x 2) ?y 1) (create$ s (+ ?x 2) ?y 0)))
+    (assert (robot (+ ?x 1) ?y place_right level (+ ?l 1) boxes $?boxes stores $?stores))
+)
+
+(defrule win
+    (declare (salience 100))
+    (robot ?x ?y ?action level ?l boxes $?boxes stores $?stores)
+    (test (= (length $?boxes) 0))
+    =>
+    (printout t "Found solution at level: " ?l crlf)
+)
