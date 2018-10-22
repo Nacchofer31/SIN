@@ -1,0 +1,37 @@
+/************************
+**** SUMARIO SOKOBAN ****
+*************************/
+
+Autor: Ignacio Ferrer Sanz 
+Grupo: 3ºG1
+
+La estructura de los hechos es la siguiente:
+
+(robot 1 4 level 0 boxes b 2 2 b 6 2 b 3 4 stores s 7 1 0 s 5 4 0 s 5 5 0)
+(obs 4 1)
+...
+(map 8 5)
+
+La distribución del grid está establecida mediante la siguiente estructura:
+
+              ejeY
+
+          1 2 3 4 5 6 7 8
+       1 | | | |O| | |S| |      // O obstáculo
+       2 | |B| | | |B| | |      // B caja
+ejeX   3 |O| | |O|O| | |O|      // S almacen
+       4 |R| |B|O|S| | | |
+       5 | | | |O|S| | | |
+
+
+El sistema dispone de 13 defrules ( 4 de move (movimiento), 4 de push (empujar caja), 4 de place (colocar caja en almacén),
+                                    1 de win (comprobación de que se han introducido todas las cajas en los almacenes)
+                                  )
+
+El sistema se puede ejecutar mediante dos modos de ejecución: ANCHURA y PROFUNDIDAD
+
+En la ejecución por ANCHURA del ejemplo propuesto en la práctica, con la misma distribución de cajas y almacenes 
+obstáculos, posición del robot y tamaño del grid, se representan los siguientes resultados:
+
+- Solución encontrada en el nivel: 52
+- Número de nodos generados: 1200000 aprox
